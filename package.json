@@ -1,0 +1,35 @@
+{
+  "name": "atp-rest",
+  "version": "0.0.0",
+  "description": " A module for creating REST servers.",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "npm run compile && mocha --compilers js:babel-core/register",
+    "test-quick": "mocha --compilers js:babel-core/register",
+    "test-clean": "npm install && npm test && rm -rf node_modules",
+    "compile": "babel --presets es2015 -d lib/ src/",
+    "prepublish": "npm run compile",
+    "new-tag": "git push && git push origin --tags && npm publish",
+    "major": "npm version major && npm run new-tag",
+    "minor": "npm version minor && npm run new-tag",
+    "patch": "npm version patch && npm run new-tag",
+    "major-clean": "npm install && npm run major && rm -rf node_modules",
+    "minor-clean": "npm install && npm run minor && rm -rf node_modules",
+    "patch-clean": "npm install && npm run patch && rm -rf node_modules"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DaemonAlchemist/atp-rest.git"
+  },
+  "author": "Andrew Wittrock",
+  "license": "MIT",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "chai": "^4.1.2",
+    "mocha": "^3.5.0"
+  }
+}
