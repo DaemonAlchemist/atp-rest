@@ -27,7 +27,7 @@ export const message = {
     error:   (text, code = undefined) => _message(text, "error",   code),
 }
 
-export const response = {
+export const respondWith = {
     Success: (req, res, callback = r => r) => results => {
         res.status(200).send({results: callback(results)});
     },
