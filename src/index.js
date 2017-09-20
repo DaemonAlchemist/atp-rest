@@ -6,7 +6,10 @@ import express from 'express';
 import {o, a} from 'atp-sugar';
 
 export const NOT_IMPLEMENTED = (req, res) => {
-    res.status(404).send({messages: [{type: 'error', text: "TODO:  Implement this endpoint"}]});
+    res.status(404).send({messages: [{
+        type: 'error',
+        text: "Endpoint not implemented yet"
+    }]});
 };
 
 export const createRoutes = (app, routes) => o(routes).reduce(
