@@ -60,7 +60,7 @@ export const respondWith = {
 export const basicCollectionController = (model, permission) => (req, res) => {
     validate()
         .loggedIn(req)
-        .hasPermission(permission)
+        .hasPermission(permission, req)
         .validCollectionFilters(req.query)
         .then(
             () => {
