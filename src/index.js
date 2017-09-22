@@ -4,6 +4,7 @@
 
 import express from 'express';
 import {o, a} from 'atp-sugar';
+import validate from 'atp-validator';
 
 export const NOT_IMPLEMENTED = (req, res) => {
     res.status(404).send({messages: [{
@@ -46,8 +47,27 @@ export const respondWith = {
     },
     ValidationFail: (req, res, callback = e => e) => errors => {
         errors = callback(errors);
-        res.status(a(errors.map(err => err.code)).max()).send({
-            messages: errors.map(err => message.error(err.msg))
-        });
+        try {
+            res.status(a(errors.map(err => err.code)).max()).send({
+                messages: errors.map(err => message.error(err.msg))
+            });
+        } catch(e) {
+            respondWith.InternalServerError(req, res)(errors);
+        }
     }
+};
+
+export const basicCollectionController = (model, permission) => (req, res) => {
+    validate()
+        .loggedIn(req)
+        .hasPermission(permission)
+        .validCollectionFilters(req.query)
+        .then(
+            () => {
+                new model().filter(req.query).list()
+                    .then(respondWith.Success(req, res))
+                    .catch(respondWith.InternalServerError(req, res));
+            },
+            respondWith.ValidationFail(req, res)
+        );
 };
