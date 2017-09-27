@@ -57,7 +57,6 @@ export const respondWith = {
     }
 };
 
-const validator() = validator();
 export const basicController = {
     rest: ({getValidator, loadResource}) => (req, res) => {
         getValidator(req).then(
