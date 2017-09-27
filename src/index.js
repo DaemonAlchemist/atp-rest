@@ -57,46 +57,77 @@ export const respondWith = {
     }
 };
 
-export const basicRestController = ({getValidator, loadResource}) => (req, res) => {
-    getValidator(req).then(
-        () => {
-            loadResource(req)
-                .then(respondWith.Success(req, res))
-                .catch(respondWith.InternalServerError(req, res));
-        },
-        respondWith.ValidationFail(req, res)
-    )
-}
-
-export const basicCollectionController = ({model, permission, validate = v => v}) => basicRestController({
-    getValidator: req => validate(
-        validator()
-            .loggedIn(req)
-            .hasPermission(permission, req)
-            .validCollectionFilters(req.query),
-        req
-    ),
-    loadResource: req => new model().filter(req.query).list()
-});
-
-export const basicEntityController = ({model, permission, idField = "id", validate = v => v}) => basicRestController({
-    getValidator: req => validate(
-        validator()
-            .loggedIn(req)
-            .hasPermission(permission)
-            .required(req.params[idField], idField),
-        req
-    ),
-    loadResource: req => new model().getById(req.params[idField])
-});
-
-export const basicEntityDeleteController = ({model, permission, idField = "id", validate = v => v}) => basicRestController({
-    getValidator: req => validate(
-        validator()
-            .loggedIn(req)
-            .hasPermission(permission)
-            .required(req.params[idField], idField),
-        req
-    ),
-    loadResource: req => null,  //TODO:  Implement this
-});
+const validator() = validator();
+export const basicController = {
+    rest: ({getValidator, loadResource}) => (req, res) => {
+        getValidator(req).then(
+            () => {
+                loadResource(req)
+                    .then(respondWith.Success(req, res))
+                    .catch(respondWith.InternalServerError(req, res));
+            },
+            respondWith.ValidationFail(req, res)
+        )
+    },
+    entity: {
+        collection: ({model, permission, validate = v => v}) => basicController.rest({
+            getValidator: req => validate(
+                validator()
+                    .loggedIn(req)
+                    .hasPermission(permission, req)
+                    .validCollectionFilters(req.query),
+                req
+            ),
+            loadResource: req => new model().filter(req.query).list()
+        }),
+        create: ({model, permission, validate = v => v}) => basicController.rest({
+            getValidator: req => validate(
+                validator()
+                    .loggedIn(req)
+                    .hasPermission(permission),
+                req
+            ),
+            loadResource: req => null,  //TODO:  Implement resource creation
+        }),
+        view: ({model, permission, idField = "id", validate = v => v}) => basicController.rest({
+            getValidator: req => validate(
+                validator()
+                    .loggedIn(req)
+                    .hasPermission(permission)
+                    .required(req.params[idField], idField),
+                req
+            ),
+            loadResource: req => new model().getById(req.params[idField])
+        }),
+        update: ({model, permission, idField = "id", validate = v => v}) => basicController.rest({
+            getValidator: req => validate(
+                validator()
+                    .loggedIn(req)
+                    .hasPermission(permission)
+                    .required(req.params[idField], idField),
+                req
+            ),
+            loadResource: req => null,  //TODO:  Implement resource editing (PATCH)
+        }),
+        replace: ({model, permission, idField = "id", validate = v => v}) => basicController.rest({
+            getValidator: req => validate(
+                validator()
+                    .loggedIn(req)
+                    .hasPermission(permission)
+                    .required(req.params[idField], idField),
+                req
+            ),
+            loadResource: req => null,  //TODO:  Implement resource replacement (PUT)
+        }),
+        delete: ({model, permission, idField = "id", validate = v => v}) => basicController.rest({
+            getValidator: req => validate(
+                validator()
+                    .loggedIn(req)
+                    .hasPermission(permission)
+                    .required(req.params[idField], idField),
+                req
+            ),
+            loadResource: req => null,  //TODO:  Implement resource deleting
+        }),
+    }
+};
