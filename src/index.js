@@ -80,6 +80,15 @@ export const basicController = {
             loadResource: req => new model().filter(o(req.query).merge(filter(req)).raw).list(),
             processResults
         }),
+        subCollection: ({model, permission, thisName, otherName}) => basicController.entity.collection({
+            model,
+            permission,
+            filter: req => ({[thisName + "_id"]: req.params[thisName + "Id"]}),
+            processResults: entities => entities.map(entity => ({
+                id: entity[otherName + "_id"],
+                version: entity[otherName + "_version"]
+            }))
+        }),
         create: ({model, permission, validate = v => v}) => basicController.rest({
             getValidator: req => validate(
                 validator()
