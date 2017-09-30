@@ -16,7 +16,7 @@ export const NOT_IMPLEMENTED = (req, res) => {
 export const createRoutes = (app, routes) => o(routes).reduce(
     (router, controller, action) => ['get', 'post', 'patch', 'put', 'delete'].includes(action)
         ? router[action]('/', controller)
-        : router.use('/' + action, createRoutes(express.Router(), controller)),
+        : router.use('/' + action, createRoutes(express.Router({mergeParams: true}), controller)),
     app
 );
 
@@ -58,18 +58,18 @@ export const respondWith = {
 };
 
 export const basicController = {
-    rest: ({getValidator, loadResource}) => (req, res) => {
+    rest: ({getValidator, loadResource, processResults}) => (req, res) => {
         getValidator(req).then(
             () => {
                 loadResource(req)
-                    .then(respondWith.Success(req, res))
+                    .then(respondWith.Success(req, res, processResults))
                     .catch(respondWith.InternalServerError(req, res));
             },
             respondWith.ValidationFail(req, res)
         )
     },
     entity: {
-        collection: ({model, permission, validate = v => v}) => basicController.rest({
+        collection: ({model, permission, validate = v => v, filter = req => ({}), processResults = r => r}) => basicController.rest({
             getValidator: req => validate(
                 validator()
                     .loggedIn(req)
@@ -77,13 +77,14 @@ export const basicController = {
                     .validCollectionFilters(req.query),
                 req
             ),
-            loadResource: req => new model().filter(req.query).list()
+            loadResource: req => new model().filter(o(req.query).merge(filter(req)).raw).list(),
+            processResults
         }),
         create: ({model, permission, validate = v => v}) => basicController.rest({
             getValidator: req => validate(
                 validator()
                     .loggedIn(req)
-                    .hasPermission(permission),
+                    .hasPermission(permission, req),
                 req
             ),
             loadResource: req => null,  //TODO:  Implement resource creation
@@ -92,7 +93,7 @@ export const basicController = {
             getValidator: req => validate(
                 validator()
                     .loggedIn(req)
-                    .hasPermission(permission)
+                    .hasPermission(permission, req)
                     .required(req.params[idField], idField),
                 req
             ),
@@ -102,7 +103,7 @@ export const basicController = {
             getValidator: req => validate(
                 validator()
                     .loggedIn(req)
-                    .hasPermission(permission)
+                    .hasPermission(permission, req)
                     .required(req.params[idField], idField),
                 req
             ),
@@ -112,7 +113,7 @@ export const basicController = {
             getValidator: req => validate(
                 validator()
                     .loggedIn(req)
-                    .hasPermission(permission)
+                    .hasPermission(permission, req)
                     .required(req.params[idField], idField),
                 req
             ),
@@ -122,7 +123,7 @@ export const basicController = {
             getValidator: req => validate(
                 validator()
                     .loggedIn(req)
-                    .hasPermission(permission)
+                    .hasPermission(permission, req)
                     .required(req.params[idField], idField),
                 req
             ),
