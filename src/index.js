@@ -61,9 +61,13 @@ export const basicController = {
     rest: ({getValidator, loadResource, processResults}) => (req, res) => {
         getValidator(req).then(
             () => {
-                loadResource(req)
-                    .then(respondWith.Success(req, res, processResults))
-                    .catch(respondWith.InternalServerError(req, res));
+                try {
+                    loadResource(req)
+                        .then(respondWith.Success(req, res, processResults))
+                        .catch(respondWith.InternalServerError(req, res));
+                } catch (e) {
+                    respondWith.InternalServerError(req, res)(e.toString());
+                }
             },
             respondWith.ValidationFail(req, res)
         )
