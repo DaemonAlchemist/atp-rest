@@ -45,7 +45,7 @@ export const respondWith = {
             message.error("Something went wrong: " + JSON.stringify(callback(err)))
         ]});
     },
-    ValidationFail: (req, res, callback = e => e) => errors => {
+    Error: (req, res, callback = e => e) => errors => {
         errors = callback(errors);
         try {
             res.status(a(errors.map(err => err.code)).max()).send({
@@ -54,7 +54,7 @@ export const respondWith = {
         } catch(e) {
             respondWith.InternalServerError(req, res)(errors);
         }
-    }
+    },
 };
 
 export const basicController = {
@@ -64,12 +64,12 @@ export const basicController = {
                 try {
                     loadResource(req)
                         .then(respondWith.Success(req, res, processResults))
-                        .catch(respondWith.InternalServerError(req, res));
+                        .catch(respondWith.Error(req, res));
                 } catch (e) {
                     respondWith.InternalServerError(req, res)(e.toString());
                 }
             },
-            respondWith.ValidationFail(req, res)
+            respondWith.Error(req, res)
         )
     },
     entity: {
@@ -100,7 +100,18 @@ export const basicController = {
                     .hasPermission(permission, req),
                 req
             ),
-            loadResource: req => null,  //TODO:  Implement resource creation
+            loadResource: req => new Promise((resolve, reject) => {
+                new model().insert(req.body)
+                    .then(info => {
+                        new model().getById(info.insertId).then(resolve, reject);
+                    })
+                    .catch(err => {
+                        reject(!err.code ? err : o(err.code).switch({
+                            ["ER_DUP_ENTRY"]: () => [{code: 409, msg: "Duplicate entry"}],
+                            default: () => [{code: 400, msg: "Could not insert new record"}]
+                        }));
+                    });
+            }),
         }),
         view: ({model, permission, idField = "id", validate = v => v}) => basicController.rest({
             getValidator: req => validate(
