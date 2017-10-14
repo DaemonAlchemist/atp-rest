@@ -5,6 +5,7 @@
 import express from 'express';
 import {o, a} from 'atp-sugar';
 import validator from 'atp-validator';
+import {underscore} from 'inflected';
 
 export const NOT_IMPLEMENTED = (req, res) => {
     res.status(404).send({messages: [{
@@ -101,14 +102,18 @@ export const basicController = {
                 req
             ),
             loadResource: req => new Promise((resolve, reject) => {
-                new model().insert(req.body)
+                const data = o(req.body)
+                    .merge(req.params)
+                    .mergeReduce((value, key) => ({[underscore(key)]: value}))
+                    .raw;
+                new model().insert(data)
                     .then(info => {
                         new model().getById(info.insertId).then(resolve, reject);
                     })
                     .catch(err => {
                         reject(!err.code ? err : o(err.code).switch({
                             ["ER_DUP_ENTRY"]: () => [{code: 409, msg: "Duplicate entry"}],
-                            default: () => [{code: 400, msg: "Could not insert new record"}]
+                            default: () => [{code: 400, msg: "Could not insert new record: " + err.code + " - " + JSON.stringify(data)}]
                         }));
                     });
             }),
