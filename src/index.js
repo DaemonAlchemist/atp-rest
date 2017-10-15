@@ -60,18 +60,24 @@ export const respondWith = {
 
 export const basicController = {
     rest: ({getValidator, loadResource, processResults}) => (req, res) => {
-        getValidator(req).then(
-            () => {
-                try {
-                    loadResource(req)
-                        .then(respondWith.Success(req, res, processResults))
-                        .catch(respondWith.Error(req, res));
-                } catch (e) {
-                    respondWith.InternalServerError(req, res)(e.toString());
-                }
-            },
-            respondWith.Error(req, res)
-        )
+        try {
+            getValidator(req).then(
+                () => {
+                    try {
+                        loadResource(req)
+                            .then(respondWith.Success(req, res, processResults))
+                            .catch(respondWith.Error(req, res));
+                    } catch (e) {
+                        console.log(e);
+                        respondWith.InternalServerError(req, res)(e.toString());
+                    }
+                },
+                respondWith.Error(req, res)
+            )
+        } catch(e) {
+            console.log(e);
+            respondWith.InternalServerError(req, res)(e.toString());
+        }
     },
     entity: {
         collection: ({model, permission, validate = v => v, filter = req => ({}), processResults = r => r}) => basicController.rest({
@@ -158,5 +164,29 @@ export const basicController = {
             ),
             loadResource: req => null,  //TODO:  Implement resource deleting
         }),
+        unlink: ({model, permission, validate = v => v}) => basicController.rest({
+            getValidator: req => validate(
+                validator()
+                    .loggedIn(req)
+                    .hasPermission(permission, req),
+                req
+            ),
+            loadResource: req => new Promise((resolve, reject) => {
+                const data = o(req.params)
+                    .mergeReduce((value, key) => ({[underscore(key)]: value}))
+                    .raw;
+                new model()
+                    .where(data)
+                    .limit(1)
+                    .delete()
+                    .then(resolve)
+                    .catch(err => {
+                        reject(!err.code ? err : o(err.code).switch({
+                            ["ER_DUP_ENTRY"]: () => [{code: 409, msg: "Duplicate entry"}],
+                            default: () => [{code: 400, msg: "Could not unlink resources: " + err.code + " - " + JSON.stringify(data)}]
+                        }));
+                    });
+            }),
+        })
     }
 };
