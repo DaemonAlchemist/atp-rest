@@ -142,7 +142,9 @@ export const basicController = {
                     .required(req.params[idField], idField),
                 req
             ),
-            loadResource: req => null,  //TODO:  Implement resource editing (PATCH)
+            loadResource: req => new Promise((resolve, reject) => {
+                reject([{code: 500, msg: "PATCH endpoints not implemented"}]);
+            }),  //TODO:  Implement resource editing (PATCH)
         }),
         replace: ({model, permission, idField = "id", validate = v => v}) => basicController.rest({
             getValidator: req => validate(
@@ -152,7 +154,9 @@ export const basicController = {
                     .required(req.params[idField], idField),
                 req
             ),
-            loadResource: req => null,  //TODO:  Implement resource replacement (PUT)
+            loadResource: req => new Promise((resolve, reject) => {
+                reject([{code: 500, msg: "PUT endpoints not implemented"}]);
+            }),  //TODO:  Implement resource replacement (PUT)
         }),
         delete: ({model, permission, idField = "id", validate = v => v}) => basicController.rest({
             getValidator: req => validate(
@@ -162,7 +166,9 @@ export const basicController = {
                     .required(req.params[idField], idField),
                 req
             ),
-            loadResource: req => null,  //TODO:  Implement resource deleting
+            loadResource: req => new Promise((resolve, reject) => {
+                reject([{code: 500, msg: "DELETE endpoints not implemented"}]);
+            }),  //TODO:  Implement resource deleting
         }),
         unlink: ({model, permission, validate = v => v}) => basicController.rest({
             getValidator: req => validate(
