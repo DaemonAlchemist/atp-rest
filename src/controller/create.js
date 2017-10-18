@@ -6,6 +6,7 @@ import restController from "./rest";
 import validator from 'atp-validator';
 import {o} from 'atp-sugar';
 import {underscore} from 'inflected';
+import {databaseError} from "../util";
 
 export default ({model, permission, validate = v => v}) => restController({
     getValidator: req => validate(
@@ -23,11 +24,6 @@ export default ({model, permission, validate = v => v}) => restController({
             .then(info => {
                 new model().getById(info.insertId).then(resolve, reject);
             })
-            .catch(err => {
-                reject(!err.code ? err : o(err.code).switch({
-                    ["ER_DUP_ENTRY"]: () => [{code: 409, msg: "Duplicate entry"}],
-                    default: () => [{code: 400, msg: "Could not insert new record: " + err.code + " - " + JSON.stringify(data)}]
-                }));
-            });
+            .catch(databaseError(reject));
     }),
 })

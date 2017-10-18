@@ -4,6 +4,9 @@
 
 import restController from "./rest";
 import validator from 'atp-validator';
+import {o} from 'atp-sugar';
+import {databaseError} from "../util";
+import {underscore} from "inflected";
 
 export default ({model, permission, idField = "id", validate = v => v}) => restController({
     getValidator: req => validate(
@@ -14,6 +17,17 @@ export default ({model, permission, idField = "id", validate = v => v}) => restC
         req
     ),
     loadResource: req => new Promise((resolve, reject) => {
-        reject([{code: 500, msg: "PATCH endpoints not implemented"}]);
-    }),  //TODO:  Implement resource editing (PATCH)
+        const id = req.params[idField];
+        const data = o(req.body)
+            .mergeReduce((value, key) => ({[underscore(key)]: value}))
+            .raw;
+        new model()
+            .where({id})
+            .limit(1)
+            .update(data)
+            .then(info => {
+                new model().getById(id).then(resolve, reject);
+            })
+            .catch(databaseError(reject));
+    }),
 });

@@ -28,3 +28,10 @@ export const message = {
     warning: (text, code = undefined) => _message(text, "warning", code),
     error:   (text, code = undefined) => _message(text, "error",   code),
 }
+
+export const databaseError = reject => err => {
+    reject(!err.code ? err : o(err.code).switch({
+        ["ER_DUP_ENTRY"]: () => [{code: 409, msg: "Duplicate entry"}],
+        default: () => [{code: 400, msg: "Could not insert new record: " + err.code}]
+    }));
+};

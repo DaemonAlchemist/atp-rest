@@ -7,6 +7,7 @@ import InternalServerError from "./internal-server-error";
 import {message} from "../util";
 
 export default (req, res, callback = e => e) => errors => {
+    console.log(errors);
     errors = callback(errors);
     try {
         res.status(a(errors.map(err => err.code)).max()).send({
