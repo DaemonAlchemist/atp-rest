@@ -5,7 +5,6 @@
 import restController from "./rest";
 import validator from 'atp-validator';
 import {o} from 'atp-sugar';
-import {underscore} from 'inflected';
 
 export default ({model, permission, validate = v => v}) => restController({
     getValidator: req => validate(
@@ -16,7 +15,7 @@ export default ({model, permission, validate = v => v}) => restController({
     ),
     loadResource: req => new Promise((resolve, reject) => {
         const data = o(req.params)
-            .mergeReduce((value, key) => ({[underscore(key)]: value}))
+            .mergeReduce((value, key) => ({[key]: value}))
             .raw;
         new model()
             .where(data)
