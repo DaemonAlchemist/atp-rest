@@ -6,7 +6,13 @@ import Success from "../response/success";
 import Error from "../response/error";
 import InternalServerError from "../response/internal-server-error";
 
-export default ({getValidator, loadResource, processResults, raw = false, contentType = () => 'application/json'}) => (req, res) => {
+export default ({
+    getValidator,
+    loadResource,
+    processResults,
+    raw = false,
+    contentType = () => 'application/json'
+}) => (req, res) => {
     try {
         getValidator(req).then(
             () => {

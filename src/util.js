@@ -11,6 +11,13 @@ export const NOT_IMPLEMENTED = (req, res) => {
     }]});
 };
 
+export const NOT_SUPPORTED = (req, res) => {
+    res.status(405).send({messages: [{
+        type: 'error',
+        text: "Endpoint not supported"
+    }]});
+};
+
 export const createRoutes = (app, routes) => o(routes).reduce(
     (router, controller, action) => ['get', 'post', 'patch', 'put', 'delete'].includes(action)
         ? router[action]('/', controller)

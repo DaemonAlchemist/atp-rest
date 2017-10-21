@@ -8,6 +8,7 @@ import InternalServerError from "./response/internal-server-error";
 import Error from "./response/error";
 
 import rest from "./controller/rest";
+import crud from "./controller/crud";
 import collection from "./controller/collection";
 import subCollection from "./controller/sub-collection";
 import create from "./controller/create";
@@ -17,13 +18,13 @@ import replace from "./controller/replace";
 import deleteController from "./controller/delete";
 import unlink from "./controller/unlink";
 
-import {NOT_IMPLEMENTED, createRoutes, message} from "./util";
+import {NOT_IMPLEMENTED, NOT_SUPPORTED, createRoutes, message} from "./util";
 
 const respondWith = {Success, NotFound, InternalServerError, Error};
 
 const basicController = {
     rest,
-    entity: {collection, subCollection, create, view, update, replace, delete: deleteController, unlink}
+    entity: {crud, collection, subCollection, create, view, update, replace, delete: deleteController, unlink}
 };
 
-export {NOT_IMPLEMENTED, createRoutes, message, respondWith, basicController};
+export {NOT_IMPLEMENTED, NOT_SUPPORTED, createRoutes, message, respondWith, basicController};
