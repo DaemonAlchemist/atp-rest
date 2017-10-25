@@ -4,6 +4,7 @@
 
 import restController from './rest';
 import validator from 'atp-validator';
+import {databaseError} from "../util";
 
 export default ({model, permission, idField = "id", validate = v => v}) => restController({
     getValidator: req => validate(
@@ -14,6 +15,11 @@ export default ({model, permission, idField = "id", validate = v => v}) => restC
         req
     ),
     loadResource: req => new Promise((resolve, reject) => {
-        reject([{code: 500, msg: "DELETE endpoints not implemented"}]);
-    }),  //TODO:  Implement resource deleting
+        new model()
+            .where({id: req.params[idField]})
+            .limit(1)
+            .delete()
+            .then(resolve)
+            .catch(databaseError(reject));
+    }),
 });
