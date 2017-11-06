@@ -5,6 +5,7 @@
 import {message} from "../util";
 
 export default (req, res, callback = e => e) => err => {
+    console.log(err);
     res.status(500).send({messages: [
         message.error("Something went wrong: " + JSON.stringify(callback(err)))
     ]});
