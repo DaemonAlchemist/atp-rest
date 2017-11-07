@@ -1,6 +1,6 @@
 {
   "name": "atp-rest",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "description": " A module for creating REST servers.",
   "main": "lib/index.js",
   "scripts": {
