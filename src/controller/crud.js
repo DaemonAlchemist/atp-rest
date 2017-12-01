@@ -8,8 +8,13 @@ import view from "./view";
 import update from "./update";
 import replace from "./replace";
 import deleteController from "./delete";
+import {identity} from 'atp-pointfree';
 
-export default ({model, permissions, idField}) => {
+export default ({
+    model, permissions, idField,
+    processCollectionResults = identity,
+    preInsert = identity
+}) => {
     const restParams = permission => ({
         model,
         permission,
@@ -28,11 +33,13 @@ export default ({model, permissions, idField}) => {
         get: collection({
             model,
             permission: permissions.view,
+            processResults: processCollectionResults
         }),
         post: create({
             model,
             permission: permissions.create,
             validate: v => v, //TODO:  Implement hook for creation validations
+            preInsert
         }),
         [':' + idField]: {
             get: view(restParams(permissions.view)),

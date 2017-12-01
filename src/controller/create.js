@@ -6,8 +6,9 @@ import restController from "./rest";
 import validator from 'atp-validator';
 import {o} from 'atp-sugar';
 import {databaseError} from "../util";
+import {identity} from 'atp-pointfree';
 
-export default ({model, permission, validate = v => v}) => restController({
+export default ({model, permission, validate = identity, preInsert = identity}) => restController({
     getValidator: req => validate(
         validator()
             .loggedIn(req)
@@ -15,14 +16,16 @@ export default ({model, permission, validate = v => v}) => restController({
         req
     ),
     loadResource: req => new Promise((resolve, reject) => {
-        const data = o(req.body)
+        const rawData = o(req.body)
             .merge(req.params)
             .mergeReduce((value, key) => ({[key]: value}))
             .raw;
-        new model().insert(data)
-            .then(info => {
-                new model().getById(info.insertId).then(resolve, reject);
-            })
-            .catch(databaseError(reject));
+        Promise.resolve(preInsert(rawData)).then(data => {
+            new model().insert(data)
+                .then(info => {
+                    new model().getById(info.insertId).then(resolve, reject);
+                })
+                .catch(databaseError(reject));
+        });
     }),
 })
