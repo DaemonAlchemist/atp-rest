@@ -17,6 +17,7 @@ import update from "./controller/update";
 import replace from "./controller/replace";
 import deleteController from "./controller/delete";
 import unlink from "./controller/unlink";
+import many2many from './controller/many-2-many';
 
 import {NOT_IMPLEMENTED, NOT_SUPPORTED, createRoutes, message} from "./util";
 
@@ -24,7 +25,12 @@ const respondWith = {Success, NotFound, InternalServerError, Error};
 
 const basicController = {
     rest,
-    entity: {crud, collection, subCollection, create, view, update, replace, delete: deleteController, unlink}
+    entity: {
+        crud,
+        collection, subCollection,
+        create, view, update, replace, delete: deleteController,
+        unlink, many2many
+    }
 };
 
 export {NOT_IMPLEMENTED, NOT_SUPPORTED, createRoutes, message, respondWith, basicController};
