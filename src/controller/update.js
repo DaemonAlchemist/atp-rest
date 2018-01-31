@@ -7,7 +7,7 @@ import validator from 'atp-validator';
 import {o} from 'atp-sugar';
 import {databaseError} from "../util";
 
-export default ({model, permission, idField = "id", validate = v => v}) => restController({
+export default ({model, permission, idField = "id", validate = v => v, preUpdate = a => a}) => restController({
     getValidator: req => validate(
         validator()
             .loggedIn(req)
@@ -17,9 +17,10 @@ export default ({model, permission, idField = "id", validate = v => v}) => restC
     ),
     loadResource: req => new Promise((resolve, reject) => {
         const id = req.params[idField];
-        const data = o(req.body)
+        const data = preUpdate(o(req.body)
             .mergeReduce((value, key) => ({[key]: value}))
-            .raw;
+            .raw
+        );
         new model()
             .where({id})
             .limit(1)

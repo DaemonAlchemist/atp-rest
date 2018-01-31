@@ -13,7 +13,10 @@ import {identity} from 'atp-pointfree';
 export default ({
     model, permissions, idField,
     processCollectionResults = identity,
-    preInsert = identity
+    preInsert = identity,
+    preUpdate = identity,
+    validateUpdate = identity,
+    validateCreate = identity,
 }) => {
     const restParams = permission => ({
         model,
@@ -26,7 +29,8 @@ export default ({
         model,
         permission,
         idField,
-        validate: v => v, //TODO:  Implement hook for edit validations
+        validate: validateUpdate,
+        preUpdate,
     });
 
     return {
@@ -38,7 +42,7 @@ export default ({
         post: create({
             model,
             permission: permissions.create,
-            validate: v => v, //TODO:  Implement hook for creation validations
+            validate: validateCreate,
             preInsert
         }),
         [':' + idField]: {

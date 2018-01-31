@@ -5,7 +5,7 @@
 import restController from "./rest";
 import validator from 'atp-validator';
 
-export default ({model, permission, idField = "id", validate = v => v}) => restController({
+export default ({model, permission, idField = "id", validate = v => v, preUpdate = a => a}) => restController({
     getValidator: req => validate(
         validator()
             .loggedIn(req)
