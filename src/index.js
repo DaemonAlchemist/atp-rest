@@ -11,6 +11,7 @@ import rest from "./controller/rest";
 import crud from "./controller/crud";
 import collection from "./controller/collection";
 import subCollection from "./controller/sub-collection";
+import children from "./controller/children";
 import create from "./controller/create";
 import view from "./controller/view";
 import update from "./controller/update";
@@ -27,7 +28,7 @@ const basicController = {
     rest,
     entity: {
         crud,
-        collection, subCollection,
+        collection, subCollection, children,
         create, view, update, replace, delete: deleteController,
         unlink, many2many
     }
