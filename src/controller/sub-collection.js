@@ -8,8 +8,10 @@ export default ({model, permission, thisName, otherName}) => collectionControlle
     model,
     permission,
     filter: req => ({[thisName + "Id"]: req.params[thisName + "Id"]}),
-    processResults: entities => entities.map(entity => ({
-        id: entity[otherName + "Id"],
-        version: entity[otherName + "Version"]
-    }))
+    processResults: entities => ({
+        results: entities.map(entity => ({
+            id: entity[otherName + "Id"],
+            version: entity[otherName + "Version"]
+        }))
+    })
 });

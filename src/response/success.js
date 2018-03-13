@@ -5,11 +5,11 @@
 import Promise from 'promise';
 import InternalServerError from "./internal-server-error";
 
-export default (req, res, callback = r => r, raw = false, contentType = () => 'application/json') => results => {
+export default (req, res, callback = results => ({results}), raw = false, contentType = () => 'application/json') => results => {
     const type = contentType(results);
     Promise.resolve(callback(results, req)).then(results => {
         res.setHeader('Content-Type', type);
         res.status(200);
-        !raw ? res.send({results}) : res.end(results, 'binary');
+        !raw ? res.send(results) : res.end(results, 'binary');
     }).catch(InternalServerError(req, res));
 };

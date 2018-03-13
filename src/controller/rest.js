@@ -9,7 +9,7 @@ import InternalServerError from "../response/internal-server-error";
 export default ({
     getValidator,
     loadResource,
-    processResults,
+    processResults = results => ({results}),
     raw = false,
     contentType = () => 'application/json'
 }) => (req, res) => {

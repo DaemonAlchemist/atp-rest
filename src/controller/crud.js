@@ -12,7 +12,7 @@ import {identity} from 'atp-pointfree';
 
 export default ({
     model, permissions, idField,
-    processCollectionResults = identity,
+    processCollectionResults = results => ({results}),
     preInsert = identity,
     preUpdate = identity,
     validateUpdate = identity,

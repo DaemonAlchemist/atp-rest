@@ -10,7 +10,7 @@ export default ({
     permission,
     idField = "id",
     validate = v => v,
-    processResults = a => a,
+    processResults = results => ({results}),
     raw = false,
     contentType = () => 'application/json'
 }) => restController({
