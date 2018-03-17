@@ -15,23 +15,33 @@ export default ({
     processCollectionResults = results => ({results}),
     preInsert = identity,
     preUpdate = identity,
+    preDelete = identity,
     validateUpdate = identity,
     validateCreate = identity,
+    validateDelete = identity
 }) => {
-    const restParams = permission => ({
+    const viewParams = {
         model,
-        permission,
+        permission: permissions.view,
         idField,
         validate: (v, req) => v.isInteger(req.params[idField], idField) //TODO:  Add existence validation
-    });
+    };
 
-    const updateParams = permission => ({
+    const updateParams = {
         model,
-        permission,
+        permission: permissions.update,
         idField,
         validate: validateUpdate,
         preUpdate,
-    });
+    };
+
+    const deleteParams = {
+        model,
+        permission: permissions.delete,
+        idField,
+        validate: validateDelete,
+        preDelete,
+    };
 
     return {
         get: collection({
@@ -46,10 +56,10 @@ export default ({
             preInsert
         }),
         [':' + idField]: {
-            get: view(restParams(permissions.view)),
-            put: replace(updateParams(permissions.update)),
-            patch: update(updateParams(permissions.update)),
-            delete: deleteController(restParams(permissions.delete))
+            get: view(viewParams),
+            put: replace(updateParams),
+            patch: update(updateParams),
+            delete: deleteController(deleteParams)
         }
     };
 }
