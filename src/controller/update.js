@@ -17,17 +17,16 @@ export default ({model, permission, idField = "id", validate = v => v, preUpdate
     ),
     loadResource: req => new Promise((resolve, reject) => {
         const id = req.params[idField];
-        const data = preUpdate(o(req.body)
-            .mergeReduce((value, key) => ({[key]: value}))
-            .raw
-        );
-        new model()
-            .where({id})
-            .limit(1)
-            .update(data)
-            .then(info => {
-                new model().getById(id).then(resolve, reject);
-            })
-            .catch(databaseError(reject));
+        const rawData = o(req.body).mergeReduce((value, key) => ({[key]: value})).raw;
+        Promise.resolve(preUpdate(rawData, id)).then(data => {
+            new model()
+                .where({id})
+                .limit(1)
+                .update(data)
+                .then(info => {
+                    new model().getById(id).then(resolve, reject);
+                })
+                .catch(databaseError(reject));
+        });
     }),
 });
