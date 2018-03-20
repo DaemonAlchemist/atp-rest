@@ -12,10 +12,12 @@ import {identity} from 'atp-pointfree';
 
 export default ({
     model, permissions, idField,
+    processCollectionFilters = identity,
     processCollectionResults = results => ({results}),
     preInsert = identity,
     preUpdate = identity,
     preDelete = identity,
+    validateCollectionFilters = identity,
     validateUpdate = identity,
     validateCreate = identity,
     validateDelete = identity
@@ -47,6 +49,8 @@ export default ({
         get: collection({
             model,
             permission: permissions.view,
+            validate: validateCollectionFilters,
+            processFilters: processCollectionFilters,
             processResults: processCollectionResults
         }),
         post: create({
